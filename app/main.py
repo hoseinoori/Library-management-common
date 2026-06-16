@@ -10,7 +10,10 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title=settings.PROJECT_NAME)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
 templates = Jinja2Templates(directory="templates")
+
+templates.env.cache = None
 
 app.include_router(api_router, prefix="/api/v1")
 
