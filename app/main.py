@@ -20,4 +20,4 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(name="index.html", context={"request": request})
