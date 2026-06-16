@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Library System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #0b0f19;
+        color: #e2e8f0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      .navbar {
+        background-color: #111827;
+        border-bottom: 2px solid #06b6d4;
+      }
+      .navbar-brand,
+      .nav-link {
+        color: #06b6d4 !important;
+        font-weight: bold;
+      }
+      .card {
+        background: rgba(17, 24, 39, 0.7);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        color: white;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+      .btn-turquoise {
+        background-color: #06b6d4;
+        color: #0b0f19;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+      .btn-turquoise:hover {
+        background-color: #0891b2;
+        color: white;
+        box-shadow: 0 0 15px #06b6d4;
+      }
+      .text-turquoise {
+        color: #06b6d4;
+      }
+      .form-control {
+        background-color: #1f2937;
+        border: 1px solid #374151;
+        color: white;
+      }
+      .form-control:focus {
+        background-color: #1f2937;
+        color: white;
+        border-color: #06b6d4;
+        box-shadow: 0 0 8px #06b6d4;
+      }
+      .panel-section {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+      <div class="container">
+        <a class="navbar-brand" href="#">📚 TURQUOISE LIB</a>
+        <div class="d-flex">
+          <span id="user-display" class="text-white me-3 pt-2"></span>
+          <button
+            id="logout-btn"
+            class="btn btn-outline-danger btn-sm d-none"
+            onclick="logout()"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div id="auth-section" class="row justify-content-center">
+        <div class="col-md-5">
+          <div class="card p-4">
+            <h3 class="text-center text-turquoise mb-4" id="auth-title">
+              Login
+            </h3>
+
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" id="username" class="form-control" />
+            </div>
+            <div class="mb-3 d-none" id="fullname-wrapper">
+              <label class="form-label">Full Name</label>
+              <input type="text" id="fullname" class="form-control" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" id="password" class="form-control" />
+            </div>
+            <div class="mb-3 d-none" id="role-wrapper">
+              <label class="form-label">Role</label>
+              <select id="role" class="form-control">
+                <option value="member">Member</option>
+                <option value="librarian">Librarian</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <button
+              class="btn btn-turquoise w-100 mb-3"
+              id="auth-btn"
+              onclick="handleAuth()"
+            >
+              Login
+            </button>
+            <p
+              class="text-center text-muted small"
+              style="cursor: pointer"
+              onclick="toggleAuthMode()"
+              id="toggle-text"
+            >
+              Don't have an account? Sign Up
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="dashboard" class="panel-section">
+        <h2 class="mb-4">
+          Welcome to your
+          <span class="text-turquoise" id="panel-role">Dashboard</span>
+        </h2>
+
+        <div class="card p-4 mb-4">
+          <h4 class="text-turquoise">🔍 Search Library Books</h4>
+          <div class="input-group mb-3">
+            <input
+              type="text"
+              id="search-input"
+              class="form-control"
+              placeholder="Enter title or author..."
+            />
+            <button class="btn btn-turquoise" onclick="searchBooks()">
+              Search
+            </button>
+          </div>
+          <div id="books-results" class="row"></div>
+        </div>
+
+        <div id="member-panel" class="panel-section card p-4 mb-4">
+          <h4 class="text-turquoise">📋 My Loans & Requests</h4>
+          <button class="btn btn-sm btn-turquoise mb-3" onclick="loadMyLoans()">
+            Refresh My List
+          </button>
+          <div id="my-loans-list"></div>
+        </div>
+
+        <div id="management-panel" class="panel-section card p-4 mb-4">
+          <h4 class="text-turquoise">🛠️ Management Console</h4>
+          <div class="mb-3">
+            <button
+              class="btn btn-outline-info me-2"
+              onclick="loadAllRequests()"
+            >
+              Manage Requests
+            </button>
+            <button
+              class="btn btn-outline-info me-2"
+              id="add-book-trigger"
+              onclick="showAddBookForm()"
+            >
+              Add New Book
+            </button>
+          </div>
+          <div id="management-content" class="mt-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let isSignUp = false;
+
+      function toggleAuthMode() {
+        isSignUp = !isSignUp;
+        document.getElementById("auth-title").innerText = isSignUp
+          ? "Sign Up"
+          : "Login";
+        document.getElementById("auth-btn").innerText = isSignUp
+          ? "Register"
+          : "Login";
+        document.getElementById("toggle-text").innerText = isSignUp
+          ? "Already have an account? Login"
+          : "Don't have an account? Sign Up";
+        document
+          .getElementById("fullname-wrapper")
+          .classList.toggle("d-none", !isSignUp);
+        document
+          .getElementById("role-wrapper")
+          .classList.toggle("d-none", !isSignUp);
+      }
+
+      async function handleAuth() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const fullname = document.getElementById("fullname").value;
+        const role = document.getElementById("role").value;
+
+        if (isSignUp) {
+          const res = await fetch("/api/v1/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username,
+              password,
+              full_name: fullname,
+              role,
+            }),
+          });
+          if (res.ok) {
+            alert("Registration successful! Please Login.");
+            toggleAuthMode();
+          } else {
+            alert("Error signing up");
+          }
+        } else {
+          const res = await fetch("/api/v1/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setupDashboard(data.username, data.role);
+          } else {
+            alert(data.detail || "Login failed");
+          }
+        }
+      }
+
+      function setupDashboard(username, role) {
+        document.getElementById("auth-section").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("logout-btn").classList.remove("d-none");
+        document.getElementById("user-display").innerText =
+          `Hello, ${username} (${role})`;
+        document.getElementById("panel-role").innerText = role.toUpperCase();
+
+        if (role === "member") {
+          document.getElementById("member-panel").style.display = "block";
+          loadMyLoans();
+        } else {
+          document.getElementById("management-panel").style.display = "block";
+        }
+        searchBooks();
+      }
+
+      async function searchBooks() {
+        const query = document.getElementById("search-input").value;
+        const res = await fetch(`/api/v1/library/books?search=${query}`);
+        const books = await res.json();
+        let html = "";
+        books.forEach((book) => {
+          html += `
+                <div class="col-md-4 mb-3">
+                    <div class="card p-3 border-secondary">
+                        <h5>${book.title}</h5>
+                        <p class="small text-muted mb-1">Author: ${book.author}</p>
+                        <p class="small text-muted mb-2">Category: ${book.category}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-dark text-turquoise">Available: ${book.available_count}</span>
+                            <button class="btn btn-sm btn-turquoise" onclick="requestLoan('${book.title}')">Request Loan</button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        document.getElementById("books-results").innerHTML =
+          html || '<p class="text-muted">No books found</p>';
+      }
+
+      async function requestLoan(title) {
+        const res = await fetch(
+          `/api/v1/library/loans/request?book_title=${encodeURIComponent(title)}`,
+          { method: "POST" },
+        );
+        const data = await res.json();
+        alert(data.detail || "Requested!");
+        if (document.getElementById("member-panel").style.display === "block")
+          loadMyLoans();
+      }
+
+      async function loadMyLoans() {
+        const res = await fetch("/api/v1/library/loans/my");
+        const loans = await res.json();
+        let html = '<ul class="list-group">';
+        loans.forEach((loan) => {
+          html += `
+                <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary">
+                    <div><strong>${loan.book_title}</strong> - Status: <span class="text-turquoise">${loan.status}</span> <small>(${loan.date})</small></div>
+                    <div>
+                        ${loan.status === "approved" ? `<button class="btn btn-sm btn-warning me-1" onclick="loanAction(${loan.id}, 'extension')">Extend</button>` : ""}
+                        ${loan.status === "approved" ? `<button class="btn btn-sm btn-danger" onclick="loanAction(${loan.id}, 'return')">Return</button>` : ""}
+                    </div>
+                </li>`;
+        });
+        document.getElementById("my-loans-list").innerHTML = html + "</ul>";
+      }
+
+      async function loanAction(id, action) {
+        await fetch(`/api/v1/library/loans/${id}/action?action=${action}`, {
+          method: "POST",
+        });
+        loadMyLoans();
+      }
+
+      async function loadAllRequests() {
+        const res = await fetch("/api/v1/library/loans/all");
+        const loans = await res.json();
+        let html = '<h5>Pending Approvals</h5><ul class="list-group">';
+        loans.forEach((loan) => {
+          if (loan.status.includes("pending")) {
+            html += `
+                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary">
+                        <div>User: <b>${loan.username}</b> | Book: <b>${loan.book_title}</b> | Action: <span class="text-warning">${loan.status}</span></div>
+                        <div>
+                            <button class="btn btn-sm btn-success me-1" onclick="manageRequest(${loan.id}, 'approve')">Approve</button>
+                            <button class="btn btn-sm btn-danger" onclick="manageRequest(${loan.id}, 'reject')">Reject</button>
+                        </div>
+                    </li>`;
+          }
+        });
+        document.getElementById("management-content").innerHTML =
+          html + "</ul>";
+      }
+
+      async function manageRequest(id, decision) {
+        await fetch(`/api/v1/library/loans/${id}/manage?decision=${decision}`, {
+          method: "POST",
+        });
+        loadAllRequests();
+        searchBooks();
+      }
+
+      function showAddBookForm() {
+        document.getElementById("management-content").innerHTML = `
+                <h5>Add New Book</h5>
+                <div class="row g-3" style="max-width: 500px">
+                    <input type="text" id="new-title" placeholder="Title" class="form-control">
+                    <input type="text" id="new-author" placeholder="Author" class="form-control">
+                    <input type="text" id="new-cat" placeholder="Category" class="form-control">
+                    <input type="number" id="new-count" placeholder="Total Count" class="form-control">
+                    <button class="btn btn-turquoise" onclick="submitNewBook()">Save Book</button>
+                </div>`;
+      }
+
+      async function submitNewBook() {
+        const title = document.getElementById("new-title").value;
+        const author = document.getElementById("new-author").value;
+        const category = document.getElementById("new-cat").value;
+        const total_count = parseInt(
+          document.getElementById("new-count").value,
+        );
+
+        await fetch("/api/v1/library/books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, author, category, total_count }),
+        });
+        alert("Book Added!");
+        searchBooks();
+      }
+
+      async function logout() {
+        await fetch("/api/v1/auth/logout", { method: "POST" });
+        location.reload();
+      }
+    </script>
+  </body>
+</html>
