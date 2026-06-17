@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Modern Library System</title>
+    <title>Advanced Library Management System</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -12,7 +12,7 @@
       body {
         background-color: #0b0f19;
         color: #e2e8f0;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", sans-serif;
       }
       .navbar {
         background-color: #111827;
@@ -24,17 +24,17 @@
         font-weight: bold;
       }
       .card {
-        background: rgba(17, 24, 39, 0.7);
+        background: rgba(17, 24, 39, 0.8);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(6, 182, 212, 0.2);
         color: white;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
       }
       .btn-turquoise {
         background-color: #06b6d4;
         color: #0b0f19;
         font-weight: bold;
-        transition: all 0.3s ease;
+        transition: all 0.3s;
       }
       .btn-turquoise:hover {
         background-color: #0891b2;
@@ -44,12 +44,14 @@
       .text-turquoise {
         color: #06b6d4;
       }
-      .form-control {
+      .form-control,
+      .form-select {
         background-color: #1f2937;
         border: 1px solid #374151;
         color: white;
       }
-      .form-control:focus {
+      .form-control:focus,
+      .form-select:focus {
         background-color: #1f2937;
         color: white;
         border-color: #06b6d4;
@@ -58,12 +60,17 @@
       .panel-section {
         display: none;
       }
+      .list-group-item {
+        background-color: #111827;
+        border-color: #374151;
+        color: white;
+      }
     </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark mb-4">
       <div class="container">
-        <a class="navbar-brand" href="#">📚 TURQUOISE LIB</a>
+        <a class="navbar-brand" href="#">📚 TURQUOISE LIBRARY PRO</a>
         <div class="d-flex">
           <span id="user-display" class="text-white me-3 pt-2"></span>
           <button
@@ -77,35 +84,33 @@
       </div>
     </nav>
 
-    <div class="container">
+    <div class="container mb-5">
       <div id="auth-section" class="row justify-content-center">
         <div class="col-md-5">
           <div class="card p-4">
             <h3 class="text-center text-turquoise mb-4" id="auth-title">
               Login
             </h3>
-
             <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input type="text" id="username" class="form-control" />
+              <label class="form-label">Username</label
+              ><input type="text" id="username" class="form-control" />
             </div>
             <div class="mb-3 d-none" id="fullname-wrapper">
-              <label class="form-label">Full Name</label>
-              <input type="text" id="fullname" class="form-control" />
+              <label class="form-label">Full Name</label
+              ><input type="text" id="fullname" class="form-control" />
             </div>
             <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" id="password" class="form-control" />
+              <label class="form-label">Password</label
+              ><input type="password" id="password" class="form-control" />
             </div>
             <div class="mb-3 d-none" id="role-wrapper">
               <label class="form-label">Role</label>
-              <select id="role" class="form-control">
+              <select id="role" class="form-select">
                 <option value="member">Member</option>
                 <option value="librarian">Librarian</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
-
             <button
               class="btn btn-turquoise w-100 mb-3"
               id="auth-btn"
@@ -127,18 +132,17 @@
 
       <div id="dashboard" class="panel-section">
         <h2 class="mb-4">
-          Welcome to your
-          <span class="text-turquoise" id="panel-role">Dashboard</span>
+          Library Panel: <span class="text-turquoise" id="panel-role">...</span>
         </h2>
 
         <div class="card p-4 mb-4">
-          <h4 class="text-turquoise">🔍 Search Library Books</h4>
+          <h4 class="text-turquoise">🔍 Search and Loan Books</h4>
           <div class="input-group mb-3">
             <input
               type="text"
               id="search-input"
               class="form-control"
-              placeholder="Enter title or author..."
+              placeholder="Search by title or author..."
             />
             <button class="btn btn-turquoise" onclick="searchBooks()">
               Search
@@ -148,37 +152,44 @@
         </div>
 
         <div id="member-panel" class="panel-section card p-4 mb-4">
-          <h4 class="text-turquoise">📋 My Loans & Requests</h4>
-          <button class="btn btn-sm btn-turquoise mb-3" onclick="loadMyLoans()">
-            Refresh My List
-          </button>
+          <h4 class="text-turquoise">
+            📋 My Borrowed Books & Requests (show_my_books)
+          </h4>
           <div id="my-loans-list"></div>
         </div>
 
-        <div id="management-panel" class="panel-section card p-4 mb-4">
-          <h4 class="text-turquoise">🛠️ Management Console</h4>
+        <div id="management-panel" class="panel-section card p-4">
+          <h4 class="text-turquoise">🛠️ System Control Panel</h4>
           <div class="mb-3">
             <button
-              class="btn btn-outline-info me-2"
+              class="btn btn-outline-info me-2 btn-sm mb-2"
               onclick="loadAllRequests()"
             >
-              Manage Requests
+              1. Manage Requests
             </button>
             <button
-              class="btn btn-outline-info me-2"
-              id="add-book-trigger"
+              class="btn btn-outline-info me-2 btn-sm mb-2"
               onclick="showAddBookForm()"
             >
-              Add New Book
+              2. Add Book
+            </button>
+            <button
+              class="btn btn-outline-info me-2 btn-sm mb-2"
+              id="admin-users-btn"
+              onclick="loadAllUsers()"
+            >
+              3. Manage Users
             </button>
           </div>
-          <div id="management-content" class="mt-3"></div>
+          <hr style="border-color: #374151" />
+          <div id="management-content"></div>
         </div>
       </div>
     </div>
 
     <script>
       let isSignUp = false;
+      let currentUserRole = "";
 
       function toggleAuthMode() {
         isSignUp = !isSignUp;
@@ -217,10 +228,10 @@
             }),
           });
           if (res.ok) {
-            alert("Registration successful! Please Login.");
+            alert("Successfully registered! Now please login.");
             toggleAuthMode();
           } else {
-            alert("Error signing up");
+            alert("Error signing up. Role might be invalid or user exists.");
           }
         } else {
           const res = await fetch("/api/v1/auth/login", {
@@ -238,18 +249,24 @@
       }
 
       function setupDashboard(username, role) {
+        currentUserRole = role;
         document.getElementById("auth-section").style.display = "none";
         document.getElementById("dashboard").style.display = "block";
         document.getElementById("logout-btn").classList.remove("d-none");
         document.getElementById("user-display").innerText =
-          `Hello, ${username} (${role})`;
+          `Logged in as: ${username}`;
         document.getElementById("panel-role").innerText = role.toUpperCase();
 
         if (role === "member") {
           document.getElementById("member-panel").style.display = "block";
+          document.getElementById("admin-users-btn").style.display = "none";
           loadMyLoans();
         } else {
           document.getElementById("management-panel").style.display = "block";
+          if (role === "librarian") {
+            document.getElementById("admin-users-btn").style.display = "none";
+          }
+          loadAllRequests();
         }
         searchBooks();
       }
@@ -260,21 +277,27 @@
         const books = await res.json();
         let html = "";
         books.forEach((book) => {
+          let actionButtons = `<button class="btn btn-sm btn-turquoise" onclick="requestLoan('${book.title}')">Loan Request</button>`;
+
+          if (currentUserRole === "admin" || currentUserRole === "librarian") {
+            actionButtons = `
+                        <button class="btn btn-sm btn-warning me-1" onclick="showEditBookForm(${book.id}, '${book.title}', '${book.author}', '${book.category}', ${book.total_count})">Edit</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.id})">Delete</button>
+                    `;
+          }
+
           html += `
                 <div class="col-md-4 mb-3">
-                    <div class="card p-3 border-secondary">
+                    <div class="card p-3">
                         <h5>${book.title}</h5>
-                        <p class="small text-muted mb-1">Author: ${book.author}</p>
-                        <p class="small text-muted mb-2">Category: ${book.category}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="badge bg-dark text-turquoise">Available: ${book.available_count}</span>
-                            <button class="btn btn-sm btn-turquoise" onclick="requestLoan('${book.title}')">Request Loan</button>
-                        </div>
+                        <p class="small text-muted mb-1">Author: ${book.author} | Category: ${book.category}</p>
+                        <p class="small text-turquoise mb-2">Total: ${book.total_count} | Available: ${book.available_count}</p>
+                        <div class="d-flex justify-content-between">${actionButtons}</div>
                     </div>
                 </div>`;
         });
         document.getElementById("books-results").innerHTML =
-          html || '<p class="text-muted">No books found</p>';
+          html || '<p class="text-muted">No books found.</p>';
       }
 
       async function requestLoan(title) {
@@ -283,9 +306,9 @@
           { method: "POST" },
         );
         const data = await res.json();
-        alert(data.detail || "Requested!");
-        if (document.getElementById("member-panel").style.display === "block")
-          loadMyLoans();
+        alert(data.detail || "Done");
+        if (currentUserRole === "member") loadMyLoans();
+        searchBooks();
       }
 
       async function loadMyLoans() {
@@ -293,34 +316,44 @@
         const loans = await res.json();
         let html = '<ul class="list-group">';
         loans.forEach((loan) => {
+          let actions = "";
+          if (loan.status === "approved") {
+            actions = `
+                        <button class="btn btn-xs btn-outline-warning btn-sm me-1" onclick="loanAction(${loan.id}, 'extension')">Extend</button>
+                        <button class="btn btn-xs btn-outline-danger btn-sm" onclick="loanAction(${loan.id}, 'return')">Return</button>
+                    `;
+          }
           html += `
-                <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary">
-                    <div><strong>${loan.book_title}</strong> - Status: <span class="text-turquoise">${loan.status}</span> <small>(${loan.date})</small></div>
-                    <div>
-                        ${loan.status === "approved" ? `<button class="btn btn-sm btn-warning me-1" onclick="loanAction(${loan.id}, 'extension')">Extend</button>` : ""}
-                        ${loan.status === "approved" ? `<button class="btn btn-sm btn-danger" onclick="loanAction(${loan.id}, 'return')">Return</button>` : ""}
-                    </div>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div><b>${loan.book_title}</b> <span class="badge bg-secondary ms-2">${loan.status}</span> <br><small class="text-muted">${loan.date}</small></div>
+                    <div>${actions}</div>
                 </li>`;
         });
         document.getElementById("my-loans-list").innerHTML = html + "</ul>";
       }
 
       async function loanAction(id, action) {
-        await fetch(`/api/v1/library/loans/${id}/action?action=${action}`, {
-          method: "POST",
-        });
+        const res = await fetch(
+          `/api/v1/library/loans/${id}/action?action=${action}`,
+          { method: "POST" },
+        );
+        const data = await res.json();
+        alert(data.detail);
         loadMyLoans();
       }
 
       async function loadAllRequests() {
         const res = await fetch("/api/v1/library/loans/all");
         const loans = await res.json();
-        let html = '<h5>Pending Approvals</h5><ul class="list-group">';
+        let html =
+          '<h5>📥 Live Requests Management</h5><ul class="list-group">';
+        let count = 0;
         loans.forEach((loan) => {
           if (loan.status.includes("pending")) {
+            count++;
             html += `
-                    <li class="list-group-item bg-dark text-white d-flex justify-content-between align-items-center border-secondary">
-                        <div>User: <b>${loan.username}</b> | Book: <b>${loan.book_title}</b> | Action: <span class="text-warning">${loan.status}</span></div>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>User: <b>${loan.username}</b> | Book: <span class="text-turquoise">${loan.book_title}</span> | State: <span class="text-warning">${loan.status}</span></div>
                         <div>
                             <button class="btn btn-sm btn-success me-1" onclick="manageRequest(${loan.id}, 'approve')">Approve</button>
                             <button class="btn btn-sm btn-danger" onclick="manageRequest(${loan.id}, 'reject')">Reject</button>
@@ -329,7 +362,9 @@
           }
         });
         document.getElementById("management-content").innerHTML =
-          html + "</ul>";
+          count > 0
+            ? html + "</ul>"
+            : '<h5>📥 Live Requests Management</h5><p class="text-muted">There are no pending requests!</p>';
       }
 
       async function manageRequest(id, decision) {
@@ -342,8 +377,8 @@
 
       function showAddBookForm() {
         document.getElementById("management-content").innerHTML = `
-                <h5>Add New Book</h5>
-                <div class="row g-3" style="max-width: 500px">
+                <h5>➕ Add Book</h5>
+                <div class="row g-3" style="max-width: 400px">
                     <input type="text" id="new-title" placeholder="Title" class="form-control">
                     <input type="text" id="new-author" placeholder="Author" class="form-control">
                     <input type="text" id="new-cat" placeholder="Category" class="form-control">
@@ -365,8 +400,117 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title, author, category, total_count }),
         });
-        alert("Book Added!");
+        alert("Book added successfully!");
         searchBooks();
+        showAddBookForm();
+      }
+
+      function showEditBookForm(id, title, author, category, total) {
+        document.getElementById("management-content").innerHTML = `
+                <h5>✏️ Edit Book: ${title}</h5>
+                <div class="row g-3" style="max-width: 400px">
+                    <input type="text" id="edit-title" value="${title}" class="form-control">
+                    <input type="text" id="edit-author" value="${author}" class="form-control">
+                    <input type="text" id="edit-cat" value="${category}" class="form-control">
+                    <input type="number" id="edit-count" value="${total}" class="form-control">
+                    <button class="btn btn-warning text-dark fw-bold" onclick="submitEditBook(${id})">Update Book</button>
+                </div>`;
+      }
+
+      async function submitEditBook(id) {
+        const title = document.getElementById("edit-title").value;
+        const author = document.getElementById("edit-author").value;
+        const category = document.getElementById("edit-cat").value;
+        const total_count = parseInt(
+          document.getElementById("edit-count").value,
+        );
+
+        const res = await fetch(`/api/v1/library/books/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, author, category, total_count }),
+        });
+        if (res.ok) {
+          alert("Book updated successfully!");
+          searchBooks();
+          loadAllRequests();
+        } else {
+          const d = await res.json();
+          alert(d.detail || "Error");
+        }
+      }
+
+      async function deleteBook(id) {
+        if (confirm("Are you sure you want to delete this book?")) {
+          await fetch(`/api/v1/library/books/${id}`, { method: "DELETE" });
+          searchBooks();
+        }
+      }
+
+      async function loadAllUsers() {
+        const res = await fetch("/api/v1/users/");
+        const users = await res.json();
+        let html =
+          '<h5>👥 Manage Users (edit_users / remove_user)</h5><ul class="list-group">';
+        users.forEach((user) => {
+          html += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>Username: <b>${user.username}</b> | Name: <b>${user.full_name}</b> | Role: <span class="text-turquoise">${user.role}</span></div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="showEditUserForm('${user.username}', '${user.full_name}', '${user.role}')">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${user.username}')">Remove</button>
+                    </div>
+                </li>`;
+        });
+        document.getElementById("management-content").innerHTML =
+          html + "</ul>";
+      }
+
+      function showEditUserForm(username, name, role) {
+        document.getElementById("management-content").innerHTML = `
+                <h5>✏️ Edit User: ${username}</h5>
+                <div class="row g-3" style="max-width: 400px">
+                    <input type="text" id="u-name" value="${name}" class="form-control" placeholder="Full Name">
+                    <input type="password" id="u-pass" class="form-control" placeholder="New Password (Leave empty to skip)">
+                    <select id="u-role" class="form-select">
+                        <option value="member" ${role === "member" ? "selected" : ""}>Member</option>
+                        <option value="librarian" ${role === "librarian" ? "selected" : ""}>Librarian</option>
+                        <option value="admin" ${role === "admin" ? "selected" : ""}>Admin</option>
+                    </select>
+                    <button class="btn btn-warning text-dark fw-bold" onclick="submitEditUser('${username}')">Update User</button>
+                </div>`;
+      }
+
+      async function submitEditUser(username) {
+        const full_name = document.getElementById("u-name").value;
+        const password = document.getElementById("u-pass").value;
+        const role = document.getElementById("u-role").value;
+
+        let bodyData = { full_name, role };
+        if (password) bodyData.password = password;
+
+        await fetch(`/api/v1/users/${username}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(bodyData),
+        });
+        alert("User updated!");
+        loadAllUsers();
+      }
+
+      async function deleteUser(username) {
+        if (confirm(`Delete user ${username}?`)) {
+          const res = await fetch(`/api/v1/users/${username}`, {
+            method: "DELETE",
+          });
+          const data = await res.json();
+          if (res.ok) {
+            alert(data.detail);
+            loadAllUsers();
+          } else {
+            alert(data.detail);
+          }
+        }
       }
 
       async function logout() {
